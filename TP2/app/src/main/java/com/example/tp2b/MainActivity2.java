@@ -8,10 +8,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 public class MainActivity2 extends AppCompatActivity implements View.OnClickListener {
     private Button btn2;
     private EditText editText2;
+    private Personne pers;
+    private TextView infoNom;
+    private TextView infoPrenom;
+    private TextView infoAge;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,11 +27,21 @@ public class MainActivity2 extends AppCompatActivity implements View.OnClickList
         btn2.setOnClickListener(this);
 
         editText2 = findViewById(R.id.editText2);
+        infoNom = findViewById(R.id.infoNom);
+        infoPrenom = findViewById(R.id.infoPrenom);
+        infoAge = findViewById(R.id.infoAge);
 
         Bundle objetbunble = this.getIntent().getExtras();
         if(objetbunble != null){
-            String InfoPasse= objetbunble.getString("passInfo");
-            editText2.setText(InfoPasse);
+            String InfoPasse = objetbunble.getString("passInfo");
+            if(InfoPasse != null)
+                editText2.setText(InfoPasse);
+        }
+        pers = (Personne) this.getIntent().getSerializableExtra("Personne");
+        if(pers != null){
+            infoNom.setText("Nom : " + pers.getNom());
+            infoPrenom.setText("Prenom : " + pers.getPrenom());
+            infoAge.setText("Age : " + pers.getAge());
         }
     }
 
