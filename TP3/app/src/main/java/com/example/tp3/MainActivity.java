@@ -2,11 +2,21 @@ package com.example.tp3;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.ComponentName;
+import android.content.ContextWrapper;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-public class MainActivity extends AppCompatActivity {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Button btnStart;
     private Button btnConnexion;
@@ -26,6 +36,55 @@ public class MainActivity extends AppCompatActivity {
         this.btnDeconnexion = findViewById(R.id.buttonDeconnexion);
         this.btnStop = findViewById(R.id.buttonStop);
 
+        this.btnStart.setOnClickListener(this);
+        this.btnConnexion.setOnClickListener(this);
+        this.btnDeconnexion.setOnClickListener(this);
+        this.btnStop.setOnClickListener(this);
+
         this.editText = findViewById(R.id.editText);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == btnStart){
+            Intent intent = new Intent(this,BackgroundService.class);
+            startService(intent);
+        }
+        if(v == btnConnexion){
+            Intent intent = new Intent(this,BackgroundService.class);
+            //Création des listeners
+            IBackgroundServiceListener listener = new IBackgroundServiceListener() {
+                public void dataChanged(final Object data) {
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            // Mise à jour de l'UI
+                            Date date = (Date) data;
+                            //System.out.println(new SimpleDateFormat("HH:mm:ss").format(date));
+                            editText.setText(new SimpleDateFormat("HH:mm:ss").format(date));
+                        }
+                    });
+                }
+            };
+
+            ServiceConnection connection = new ServiceConnection() {
+                @Override
+                public void onServiceConnected(ComponentName name, IBinder service) {
+                    Log.i("BackgroundService", "Connected!");
+                    IBackgroundService monservice = ((BackgroundServiceBinder)service).getService();
+                    monservice.addListener(listener);
+                }
+                public void onServiceDisconnected(ComponentName name) {
+                    Log.i("BackgroundService", "Disconnected!");
+                }
+            };
+
+        }
+        if(v == btnDeconnexion){
+
+        }
+        if(v == btnStop){
+            Intent intent = new Intent(this,BackgroundService.class);
+            stopService(intent);
+        }
     }
 }
