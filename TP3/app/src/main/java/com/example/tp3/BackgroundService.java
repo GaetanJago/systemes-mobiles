@@ -26,6 +26,7 @@ public class BackgroundService extends Service implements IBackgroundService {
         timer = new Timer();
         Log.d(this.getClass().getName(), "onCreate");
 
+        binder = new BackgroundServiceBinder(this);
         listeners = new ArrayList< IBackgroundServiceListener >();
     }
     @Override

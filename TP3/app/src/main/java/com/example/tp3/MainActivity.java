@@ -24,7 +24,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnStop;
 
     private EditText editText;
-
+    private ServiceConnection connection;
+    private IBackgroundService monservice;
+    private IBackgroundServiceListener listener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +54,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(v == btnConnexion){
             Intent intent = new Intent(this,BackgroundService.class);
+
             //Création des listeners
-            IBackgroundServiceListener listener = new IBackgroundServiceListener() {
+            listener = new IBackgroundServiceListener() {
                 public void dataChanged(final Object data) {
                     MainActivity.this.runOnUiThread(new Runnable() {
                         public void run() {
@@ -66,11 +69,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             };
 
-            ServiceConnection connection = new ServiceConnection() {
+            connection = new ServiceConnection() {
                 @Override
                 public void onServiceConnected(ComponentName name, IBinder service) {
                     Log.i("BackgroundService", "Connected!");
-                    IBackgroundService monservice = ((BackgroundServiceBinder)service).getService();
+                    monservice = ((BackgroundServiceBinder)service).getService();
                     monservice.addListener(listener);
                 }
                 public void onServiceDisconnected(ComponentName name) {
@@ -78,9 +81,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             };
 
+            //Connexion au service
+            bindService(intent,connection,BIND_AUTO_CREATE);
+
         }
         if(v == btnDeconnexion){
-
+            unbindService(connection);
+            monservice.removeListener(listener);
         }
         if(v == btnStop){
             Intent intent = new Intent(this,BackgroundService.class);
