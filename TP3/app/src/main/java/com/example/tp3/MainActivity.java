@@ -24,9 +24,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button btnStop;
 
     private EditText editText;
-    private ServiceConnection connection;
+
     private IBackgroundService monservice;
-    private IBackgroundServiceListener listener;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            Log.i("BackgroundService", "Connected!");
+            monservice = ((BackgroundServiceBinder)service).getService();
+            monservice.addListener(listener);
+        }
+        public void onServiceDisconnected(ComponentName name) {
+            Log.i("BackgroundService", "Disconnected!");
+        }
+    };
+
+    private IBackgroundServiceListener listener = new IBackgroundServiceListener() {
+        public void dataChanged(final Object data) {
+            MainActivity.this.runOnUiThread(new Runnable() {
+                public void run() {
+                    // Mise à jour de l'UI
+                    Date date = (Date) data;
+                    editText.setText(new SimpleDateFormat("HH:mm:ss").format(date));
+                }
+            });
+        }
+    };
+
+
+
 
     private boolean shouldUnbind = false;
 
@@ -56,32 +82,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(v == btnConnexion && !this.shouldUnbind){
             Intent intent = new Intent(this,BackgroundService.class);
-
-            //Création des listeners
-            listener = new IBackgroundServiceListener() {
-                public void dataChanged(final Object data) {
-                    MainActivity.this.runOnUiThread(new Runnable() {
-                        public void run() {
-                            // Mise à jour de l'UI
-                            Date date = (Date) data;
-                            editText.setText(new SimpleDateFormat("HH:mm:ss").format(date));
-                        }
-                    });
-                }
-            };
-
-            connection = new ServiceConnection() {
-                @Override
-                public void onServiceConnected(ComponentName name, IBinder service) {
-                    Log.i("BackgroundService", "Connected!");
-                    monservice = ((BackgroundServiceBinder)service).getService();
-                    monservice.addListener(listener);
-                }
-                public void onServiceDisconnected(ComponentName name) {
-                    Log.i("BackgroundService", "Disconnected!");
-                }
-            };
-
             //Connexion au service
             if(bindService(intent,connection,BIND_AUTO_CREATE))
                 shouldUnbind = true;
