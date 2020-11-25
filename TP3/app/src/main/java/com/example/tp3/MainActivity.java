@@ -64,7 +64,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public void run() {
                             // Mise à jour de l'UI
                             Date date = (Date) data;
-                            //System.out.println(new SimpleDateFormat("HH:mm:ss").format(date));
                             editText.setText(new SimpleDateFormat("HH:mm:ss").format(date));
                         }
                     });

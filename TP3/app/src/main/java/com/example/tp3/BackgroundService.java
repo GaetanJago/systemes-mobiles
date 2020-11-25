@@ -35,7 +35,6 @@ public class BackgroundService extends Service implements IBackgroundService {
         timer.scheduleAtFixedRate(new TimerTask() {
             public void run() {
                 // Executer de votre tâche
-                //System.out.println(new SimpleDateFormat("HH:mm:ss").format(new Date()));
                 fireDataChanged(new Date());
             }
         }, 0, 1000);
