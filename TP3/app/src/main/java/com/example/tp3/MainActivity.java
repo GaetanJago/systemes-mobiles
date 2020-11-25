@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(v == btnStop){
             Intent intent = new Intent(this,BackgroundService.class);
+            unbindService(connection);
             stopService(intent);
         }
     }
