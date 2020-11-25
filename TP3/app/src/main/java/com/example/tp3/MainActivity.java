@@ -28,6 +28,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private IBackgroundService monservice;
     private IBackgroundServiceListener listener;
 
+    private boolean shouldUnbind = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent intent = new Intent(this,BackgroundService.class);
             startService(intent);
         }
-        if(v == btnConnexion){
+        if(v == btnConnexion && !this.shouldUnbind){
             Intent intent = new Intent(this,BackgroundService.class);
 
             //Création des listeners
@@ -82,16 +84,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             };
 
             //Connexion au service
-            bindService(intent,connection,BIND_AUTO_CREATE);
+            if(bindService(intent,connection,BIND_AUTO_CREATE))
+                shouldUnbind = true;
 
         }
         if(v == btnDeconnexion){
-            unbindService(connection);
-            monservice.removeListener(listener);
+            if(connection != null && this.shouldUnbind){
+                unbindService(connection);
+                monservice.removeListener(listener);
+                this.shouldUnbind = false;
+            }
+
         }
         if(v == btnStop){
-            Intent intent = new Intent(this,BackgroundService.class);
-            unbindService(connection);
+            if(connection != null && this.shouldUnbind) {
+                unbindService(connection);
+                this.shouldUnbind = false;
+            }
+            Intent intent = new Intent(this, BackgroundService.class);
             stopService(intent);
         }
     }
